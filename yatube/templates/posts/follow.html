@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block title %}Последние обновления ваших подписок{% endblock %}
+{% block content %}
+  {% include 'posts/includes/switcher.html' %}
+        <h1> Последние обновления авторов, на которых вы подписаны </h1>
+    {% if not page_obj %}
+        <p> Вы пока не подписаны ни на одного автора. <br> Чтобы подписаться на автора, перейдите на его страницу и нажмите кнопку "подписаться" в верхней части страницы. </p>
+    {% endif%}
+    {% for post in page_obj %}
+      {% include 'posts/includes/for_post.html' %}
+    {% endfor %}
+    {% include 'posts/includes/paginator.html' %}
+{% endblock %}
