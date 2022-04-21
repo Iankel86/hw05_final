@@ -1,0 +1,31 @@
+{% load thumbnail %}
+<div class ="container py-3">
+<article>
+    <ul>
+    <li>
+        Автор: {% if post.author.get_full_name %}{{ post.author.get_full_name }}{% else %}{{ post.author }}{% endif %}
+        <a href="{% url 'posts:profile' post.author.username %}">
+            Все посты пользователя
+        </a>
+    </li>
+    {% if post.group %}
+    <a href="{% url 'posts:group_list' post.group.slug %}">Все записи группы</a>
+    {% endif %}                    
+    <li>
+        Комментариев: {{ post.comments.count }}
+    </li>
+    <li>
+        Дата публикации: {{ post.pub_date|date:"d E Y" }}
+    </li>
+    </ul>
+</article>
+<article style="text-align: center;">
+    <p class ="pt-3 px-3" align="justify">
+    {{ post.text }}
+    </p>
+    {% if post.group %}
+    <a href="{% url 'posts:group_list' post.group.slug %}">Все записи группы</a>
+    {% endif %}
+    {% if not forloop.last %}<hr>{% endif %}
+</article>
+</div>

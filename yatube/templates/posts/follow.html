@@ -1,13 +1,17 @@
-{% extends 'base.html' %}
-{% block title %}Последние обновления ваших подписок{% endblock %}
+{% extends "base.html" %} 
+{% block title %} Подписки {% endblock %}
 {% block content %}
-  {% include 'posts/includes/switcher.html' %}
-        <h1> Последние обновления авторов, на которых вы подписаны </h1>
-    {% if not page_obj %}
-        <p> Вы пока не подписаны ни на одного автора. <br> Чтобы подписаться на автора, перейдите на его страницу и нажмите кнопку "подписаться" в верхней части страницы. </p>
-    {% endif%}
-    {% for post in page_obj %}
-      {% include 'posts/includes/for_post.html' %}
-    {% endfor %}
-    {% include 'posts/includes/paginator.html' %}
+<div class="container py-5">
+  {% include 'includes/switcher.html' %}
+  <h2> Последние обновления авторов, на которых вы подписаны </h2>
+  {% for post in page_obj %}
+    {% if post.group %}
+    {% include 'includes/post.html' %}
+    <a class="btn btn-primary btn-sm" href="{% url 'posts:group_list' post.group.slug %}">
+      Все записи группы
+    </a>
+    {% endif %}
+    {% if not forloop.last %}<hr>{% endif %}
+  {% endfor %}
+  {% include "includes/paginator.html" %}
 {% endblock %}

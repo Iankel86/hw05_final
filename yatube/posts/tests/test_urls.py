@@ -144,17 +144,3 @@ class StaticURLTests(TestCase):
                                               )
         self.assertEqual(response.status_code, HTTPStatus.OK,
                          'ОШИБКА: Редактирует не автор!')
-
-    # def test_comment_guest(self):
-    #     """Проверяем, что комментировать может авторизованный мользователь
-    #        А гостя перенаправляем на авторизацию"""
-    #     response_no_auth = self.guest_author.get(
-    #         f'/posts/{self.post.id}/comment/')
-    #     response_auth = self.authorized_author.get(
-    #         f'/posts/{self.post.id}/comment/')
-    #     self.assertEqual(
-    #         response_no_auth.status_code, HTTPStatus.FOUND.value)
-    #     self.assertEqual(response_auth.status_code, HTTPStatus.FOUND.value)
-    #     self.assertRedirects(
-    #         response_no_auth,
-    #         f'/auth/login/?next=/posts/{self.post.id}/comment/')

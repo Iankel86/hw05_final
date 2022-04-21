@@ -4,9 +4,6 @@
 {% endblock %}
 {% block content %}
 <div class="container py-5">
-  {% comment %} кэш обнавляется раз в 20 сек. {% endcomment %}
-  {% load cache %}
-  {% cache 20 index_page %}
   <p>
     {{ group.description }}
   </p>
@@ -44,6 +41,5 @@
   {% endfor %}
   {% include 'includes/paginator.html' %}
   </article>
-  {% endcache %}
 </div>
 {% endblock %}

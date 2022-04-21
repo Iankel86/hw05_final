@@ -1,8 +1,9 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
+from django.core.paginator import Paginator
 
 from .forms import CommentForm, PostForm
-from .models import Comment, Group, Post, User
+from .models import Comment, Follow, Group, Post, User
 from .utils import get_paginator
 
 
@@ -100,6 +101,42 @@ def add_comment(request, post_id):
         comment.post = post
         comment.save()
     return redirect('posts:post_detail', post_id=post_id)
+
+
+@login_required
+def follow_index(request):
+    """Посты авторов,на которых подписан текущий пользователь"""
+    user = request.user
+    posts = Post.objects.filter(author__following__user=user)
+    paginator = Paginator(posts, 10)
+    page_number = request.GET.get('page')
+    page = paginator.get_page(page_number)
+    return render(request, 'posts/follow.html', {'page': page,
+                                                 'paginator': paginator})
+
+
+@login_required
+def profile_follow(request, username):
+    """Подписка на интересного автора"""
+    user = request.user
+    author = get_object_or_404(User, username=username)
+    now_follower = Follow.objects.filter(user=user, author=author).exists()
+    if user != author and not now_follower:
+        Follow.objects.create(user=user, author=author)
+    return redirect('posts:profile', username=username)
+
+
+@login_required
+def profile_unfollow(request, username):
+    """Функция отписаться от некого автора"""
+    user = request.user
+    author = get_object_or_404(User, username=username)
+    now_follower = Follow.objects.filter(user=user, author=author).exists()
+    if now_follower:
+        follow = Follow.objects.get(user=user, author=author)
+        follow.delete()
+    return redirect('posts:profile', username=username)
+
 
 # def test_delete_image(self):
 #         """Проверяем, что картинку можно удалить из существующего поста"""
