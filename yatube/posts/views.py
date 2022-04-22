@@ -32,11 +32,14 @@ def group_posts(request, slug):
 def profile(request, username):
     author = get_object_or_404(User, username=username)
     page_obj, posts_amount = get_paginator(author.posts.all(), request)
+    following = Follow.objects.filter(
+        user__username=request.user, author__username=username).all()
     context = {
         # Все посты пользователя в profile.html
         'author': author,
         # Всего постов автора в profile.html
         'posts_amount': posts_amount,
+        'following': following,
         # Список всех постов отсорт по 10 шт и привяз. к панинатору
         'page_obj': page_obj,
     }
