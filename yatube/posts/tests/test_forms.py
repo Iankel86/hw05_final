@@ -4,7 +4,7 @@ from django.contrib.auth import get_user_model
 from django.test import Client, TestCase
 from django.urls import reverse
 
-from posts.models import Group, Post
+from posts.models import Comment, Group, Post
 
 User = get_user_model()
 
@@ -146,3 +146,25 @@ class PostFormTest(TestCase):
             response,
             reverse('posts:post_detail', args=[self.post.id])
         )
+
+    def test_comment_posts_guost(self):
+        'Проверка создания комментария не авторизированного'
+        author = self.user.id
+        post = self.post.id
+        comment_count = Comment.objects.count()
+        form_data = {
+            'text': 'Коммент',
+            'author_id': author,
+            'post_id': post
+        }
+        response = self.guest_client.post(reverse('posts:add_comment',
+                                          kwargs={
+                                                  'post_id': self.post.id}),
+                                          data=form_data,
+                                          follow=True)
+        # Проверяем, сработал ли редирект
+        self.assertRedirects(response, reverse('users:login')
+                             + f'?next=/posts/{self.post.id}/comment/')
+        # Проверяем, увеличилось ли число постов
+        self.assertEqual(Comment.objects.count(), comment_count,
+                         'Ошибка:Число постов увеличелось..')

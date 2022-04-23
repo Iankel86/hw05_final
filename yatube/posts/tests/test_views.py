@@ -1,6 +1,7 @@
 from django import forms
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client, TestCase
 from django.urls import reverse
 
@@ -14,6 +15,16 @@ SECOND_POST_PAGE_COUNT = POSTS_QUANTITY - settings.NUMBER_POST + 1
 
 class PostPagesTests(TestCase):
     def setUp(self):
+        # small_gif = (
+        #     b"\x47\x49\x46\x38\x39\x61\x01\x00\x01\x00\x00\x00\x00\x21\xf9\x04"
+        #     b"\x01\x0a\x00\x01\x00\x2c\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02"
+        #     b"\x02\x4c\x01\x00\x3b"
+        # )
+        # uploaded = SimpleUploadedFile(
+        #     name='small.gif',
+        #     content=small_gif,
+        #     content_type='image/gif'
+        # )
         self.user = User.objects.create_user(username='test_user')
         self.authorized_client = Client()
         self.authorized_client.force_login(self.user)
@@ -24,7 +35,8 @@ class PostPagesTests(TestCase):
         self.post = Post.objects.create(
             text='Тестовый текст',
             author=self.user,
-            group=self.group
+            group=self.group,
+            # image=uploaded,
         )
         self.form_data = {
             'text': self.post.text,
@@ -59,14 +71,19 @@ class PostPagesTests(TestCase):
                 self.assertTemplateUsed(response, template)
 
     def test_post_context_index(self):
-        """Проверка контекста домашней страницы index"""
+        """Проверка контекста домашней страницы index/6"""
         response = self.authorized_client.get(reverse('posts:index'))
-        first_object = response.context.get('page_obj')[0]
-        self.assertEqual(first_object, self.post, "что то пошло не так")
-        self.assertEqual(first_object.text, self.post.text, 'Ошибка Text')
-        self.assertEqual(
-            first_object.author, self.post.author, 'Ошибка Author'
-        )
+        first_object = response.context['page_obj'][0]
+        index_text = first_object.text
+        index_author = first_object.author.username
+        # test_image = first_object.image
+        index_group = first_object.group.slug
+        self.assertEqual(index_text, self.post.text, 'Ошибка: Text поста')
+        self.assertEqual(index_author, self.post.author.username,
+                         'Ошибка: Username')
+        self.assertEqual(index_group, self.post.group.slug, 'Ошибка: Slug')
+        # self.assertEqual(test_image, self.post.image,
+        #                  'Ошибка: Нет картинки')
 
     def test_group_contains_list_of_posts(self):
         """group_list содержит посты, отфильтрованные по группе."""
