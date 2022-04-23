@@ -141,6 +141,22 @@ def profile_unfollow(request, username):
     return redirect('posts:profile', username=username)
 
 
+# def paginator_view(request, post_list):
+#     posts = Post.objects.filter(author__following__user=user)
+#     paginator = Paginator(posts, 10)
+#     page_number = request.GET.get("page")
+#     return paginator.get_page(page_number)
+
+
+@login_required
+def follow_index(request):
+    user = request.user
+    posts = Post.objects.filter(author__following__user=user)
+    paginator = Paginator(posts, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    return render(request, 'posts/follow.html', {'page_obj': page_obj})
+
 # def test_delete_image(self):
 #         """Проверяем, что картинку можно удалить из существующего поста"""
 #         post_count = Post.objects.count()
