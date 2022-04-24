@@ -1,4 +1,3 @@
-# Страница - Новой записи
 from django import forms
 
 from .models import Comment, Post

@@ -17,14 +17,11 @@ class Post(models.Model):
                               on_delete=models.SET_NULL,
                               related_name='posts'
                               )
-    # Поле для картинки (необязательное)
     image = models.ImageField(
         'Картинка',
         upload_to='posts/',
         blank=True
     )
-    # Аргумент upload_to указывает директорию,
-    # в которую будут загружаться пользовательские файлы.
 
     class Meta:
         ordering = ('-pub_date',)
@@ -76,10 +73,18 @@ class Comment(models.Model):
 
 
 class Follow(models.Model):
+    """Подписка на авторов."""
     user = models.ForeignKey(User, on_delete=models.CASCADE,
                              related_name='follower')
     author = models.ForeignKey(User, on_delete=models.CASCADE,
                                related_name='following')
 
     class Meta:
-        unique_together = ('user', 'author')
+        constraints = [
+            models.UniqueConstraint(
+                fields=['author', 'user'],
+                name='unique_follower')
+        ]
+
+    def str(self):
+        return f"{self.author}, follower:{self.user}"

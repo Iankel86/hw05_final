@@ -1,6 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
 from django.core.paginator import Paginator
+from django.conf import settings
 
 from .forms import CommentForm, PostForm
 from .models import Comment, Follow, Group, Post, User
@@ -33,14 +34,11 @@ def profile(request, username):
     author = get_object_or_404(User, username=username)
     page_obj, posts_amount = get_paginator(author.posts.all(), request)
     following = Follow.objects.filter(
-        user__username=request.user, author__username=username).all()
+        user__username=request.user, author__username=username)
     context = {
-        # Все посты пользователя в profile.html
         'author': author,
-        # Всего постов автора в profile.html
         'posts_amount': posts_amount,
         'following': following,
-        # Список всех постов отсорт по 10 шт и привяз. к панинатору
         'page_obj': page_obj,
     }
     return render(request, 'posts/profile.html', context)
@@ -108,74 +106,37 @@ def add_comment(request, post_id):
 
 @login_required
 def follow_index(request):
-    """Посты авторов,на которых подписан текущий пользователь"""
+    """Посты авторов,на которых подписан текущий пользователь, не более 10"""
     user = request.user
     posts = Post.objects.filter(author__following__user=user)
-    paginator = Paginator(posts, 10)
+    paginator = Paginator(posts, settings.SAMPLING)
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
-    return render(request, 'posts/follow.html', {'page': page,
-                                                 'paginator': paginator})
+    return render(request, 'posts/follow.html', {'page': page})
+
+# Хотел еще так, но что то не запустилось, хотя с первого взгляда рабочий код
+# @login_required
+# def follow_index(post_list, request):
+#     """Посты авторов,на которых подписан текущий пользователь"""
+#     post_list = Post.objects.filter(
+#         author__following__user=request.user).select_related('author', 'group')
+#     page_number = request.GET.get('page')
+#     page_obj = Paginator(post_list, settings.SAMPLING).get_page(page_number)
+#     context = {'page_obj': page_obj}
+#     return render(request, 'posts/follow.html', context)
 
 
 @login_required
 def profile_follow(request, username):
-    """Подписка на интересного автора"""
-    user = request.user
     author = get_object_or_404(User, username=username)
-    now_follower = Follow.objects.filter(user=user, author=author).exists()
-    if user != author and not now_follower:
-        Follow.objects.create(user=user, author=author)
-    return redirect('posts:profile', username=username)
+    if request.user != author:
+        Follow.objects.get_or_create(user=request.user, author=author)
+    return redirect("profile", username=username)
 
 
 @login_required
 def profile_unfollow(request, username):
     """Функция отписаться от некого автора"""
-    user = request.user
     author = get_object_or_404(User, username=username)
-    now_follower = Follow.objects.filter(user=user, author=author).exists()
-    if now_follower:
-        follow = Follow.objects.get(user=user, author=author)
-        follow.delete()
-    return redirect('posts:profile', username=username)
-
-
-# def paginator_view(request, post_list):
-#     posts = Post.objects.filter(author__following__user=user)
-#     paginator = Paginator(posts, 10)
-#     page_number = request.GET.get("page")
-#     return paginator.get_page(page_number)
-
-
-@login_required
-def follow_index(request):
-    user = request.user
-    posts = Post.objects.filter(author__following__user=user)
-    paginator = Paginator(posts, 10)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
-    return render(request, 'posts/follow.html', {'page_obj': page_obj})
-
-# def test_delete_image(self):
-#         """Проверяем, что картинку можно удалить из существующего поста"""
-#         post_count = Post.objects.count()
-#         form_data = {
-#             'text': self.post.text,
-#             'group': self.post.group.id,
-#             'image-clear': 'on'
-#         }
-#         response = self.author_client.post(
-#             reverse('posts:post_edit', kwargs={'post_id': self.post.id}),
-#             data=form_data
-#         )
-
-#         self.assertRedirects(
-#             response, reverse(
-#                 'posts:post_detail', kwargs={'post_id': self.post.id}
-#             )
-#         )
-#         self.assertEqual(Post.objects.count(), post_count,
-#                          f'Создан новый пост')
-#         self.post.refresh_from_db()
-#         self.assertEqual(self.post.image.name, '')
+    Follow.objects.filter(user=request.user, author=author).delete()
+    return redirect('posts:profile', username)
