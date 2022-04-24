@@ -117,9 +117,9 @@ def follow_index(request):
 # Хотел еще так, но что то не запустилось, хотя с первого взгляда рабочий код
 # @login_required
 # def follow_index(post_list, request):
-#     """Посты авторов,на которых подписан текущий пользователь"""
+#     """Посты авторов,на которых подписан текущий пользователь, не более 10"""
 #     post_list = Post.objects.filter(
-#         author__following__user=request.user).select_related('author', 'group')
+#       author__following__user=request.user).select_related('author', 'group')
 #     page_number = request.GET.get('page')
 #     page_obj = Paginator(post_list, settings.SAMPLING).get_page(page_number)
 #     context = {'page_obj': page_obj}

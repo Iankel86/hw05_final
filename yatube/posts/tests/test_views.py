@@ -5,9 +5,8 @@ from django import forms
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.test import Client, TestCase     # override_settings
+from django.test import Client, TestCase
 from django.urls import reverse
-# from django.core.cache import cache
 
 from posts.models import Group, Post
 
@@ -93,14 +92,11 @@ class PostPagesTests(TestCase):
         first_object = response.context['page_obj'][0]
         index_text = first_object.text
         index_author = first_object.author.username
-        # test_image = first_object.image
         index_group = first_object.group.slug
         self.assertEqual(index_text, self.post.text, 'Ошибка: Text поста')
         self.assertEqual(index_author, self.post.author.username,
                          'Ошибка: Username')
         self.assertEqual(index_group, self.post.group.slug, 'Ошибка: Slug')
-        # self.assertEqual(test_image, self.post.image,
-        #                  'Ошибка: Нет картинки')
 
     def test_group_contains_list_of_posts(self):
         """group_list содержит посты, отфильтрованные по группе."""
