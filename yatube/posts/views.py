@@ -112,7 +112,7 @@ def follow_index(request):
     paginator = Paginator(posts, settings.SAMPLING)
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
-    return render(request, 'posts/follow.html', {'page': page})
+    return render(request, 'posts/follow.html', {'page_obj': page})
 
 # Хотел еще так, но что то не запустилось, хотя с первого взгляда рабочий код
 # @login_required
@@ -131,7 +131,7 @@ def profile_follow(request, username):
     author = get_object_or_404(User, username=username)
     if request.user != author:
         Follow.objects.get_or_create(user=request.user, author=author)
-    return redirect("profile", username=username)
+    return redirect("posts:profile", username=username)
 
 
 @login_required
