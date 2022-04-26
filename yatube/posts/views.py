@@ -104,6 +104,20 @@ def add_comment(request, post_id):
     return redirect('posts:post_detail', post_id=post_id)
 
 
+# @login_required
+# def follow_index(request):
+#     """Посты авторов,на которых подписан текущий пользователь, не более 10"""
+#     user = request.user
+#     posts = Post.objects.filter(author__following__user=user)
+#     paginator = Paginator(posts, settings.SAMPLING)
+#     page_number = request.GET.get('page')
+#     page = paginator.get_page(page_number)
+#     context = {
+#         'page_obj': paginator,
+#     }
+#     return render(request, 'posts/follow.html', {'page_obj': page}, context)
+
+
 @login_required
 def follow_index(request):
     """Посты авторов,на которых подписан текущий пользователь, не более 10"""
@@ -122,7 +136,7 @@ def profile_follow(request, username):
     author = get_object_or_404(User, username=username)
     if request.user != author:
         Follow.objects.get_or_create(user=request.user, author=author)
-    return redirect("posts:profile", username=username)
+    return redirect("profile", username=username)
 
 
 @login_required
