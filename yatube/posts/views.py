@@ -4,6 +4,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from .forms import CommentForm, PostForm
 from .models import Comment, Follow, Group, Post, User
 from .utils import get_paginator
+from .utils_crutch import get_paginator_crutch
 
 
 def index(request):
@@ -104,29 +105,15 @@ def add_comment(request, post_id):
     return redirect('posts:post_detail', post_id=post_id)
 
 
-# @login_required
-# def follow_index(request):
-#     """Посты авторов,на которых подписан текущий пользователь, не более 10"""
-#     user = request.user
-#     posts = Post.objects.filter(author__following__user=user)
-#     paginator = Paginator(posts, settings.SAMPLING)
-#     page_number = request.GET.get('page')
-#     page = paginator.get_page(page_number)
-#     context = {
-#         'page_obj': paginator,
-#     }
-#     return render(request, 'posts/follow.html', {'page_obj': page}, context)
-
-
 @login_required
 def follow_index(request):
     """Посты авторов,на которых подписан текущий пользователь, не более 10"""
     user = request.user
     posts = Post.objects.filter(author__following__user=user)
-    page_obj = get_paginator(posts, request)
+    paginator = get_paginator_crutch(posts, request)
     template = 'posts/follow.html'
     context = {
-        'page_obj': page_obj,
+        'page_obj': paginator,
     }
     return render(request, template, context)
 
