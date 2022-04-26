@@ -1,7 +1,5 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
-from django.core.paginator import Paginator
-from django.conf import settings
 
 from .forms import CommentForm, PostForm
 from .models import Comment, Follow, Group, Post, User
@@ -33,8 +31,10 @@ def group_posts(request, slug):
 def profile(request, username):
     author = get_object_or_404(User, username=username)
     page_obj, posts_amount = get_paginator(author.posts.all(), request)
-    following = Follow.objects.filter(
-        user__username=request.user, author__username=username)
+    following = (
+        request.user.is_authenticated
+        and Follow.objects.filter(
+            user__username=request.user, author__username=username).exists())
     context = {
         'author': author,
         'posts_amount': posts_amount,
@@ -109,21 +109,12 @@ def follow_index(request):
     """Посты авторов,на которых подписан текущий пользователь, не более 10"""
     user = request.user
     posts = Post.objects.filter(author__following__user=user)
-    paginator = Paginator(posts, settings.SAMPLING)
-    page_number = request.GET.get('page')
-    page = paginator.get_page(page_number)
-    return render(request, 'posts/follow.html', {'page_obj': page})
-
-# Хотел еще так, но что то не запустилось, хотя с первого взгляда рабочий код
-# @login_required
-# def follow_index(post_list, request):
-#     """Посты авторов,на которых подписан текущий пользователь, не более 10"""
-#     post_list = Post.objects.filter(
-#       author__following__user=request.user).select_related('author', 'group')
-#     page_number = request.GET.get('page')
-#     page_obj = Paginator(post_list, settings.SAMPLING).get_page(page_number)
-#     context = {'page_obj': page_obj}
-#     return render(request, 'posts/follow.html', context)
+    paginator = get_paginator(posts, request)
+    template = 'posts/follow.html'
+    context = {
+        'page_obj': paginator,
+    }
+    return render(request, template, context)
 
 
 @login_required
