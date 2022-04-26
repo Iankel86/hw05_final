@@ -123,10 +123,10 @@ def follow_index(request):
     """Посты авторов,на которых подписан текущий пользователь, не более 10"""
     user = request.user
     posts = Post.objects.filter(author__following__user=user)
-    paginator = get_paginator(posts, request)
+    page_obj = get_paginator(posts, request)
     template = 'posts/follow.html'
     context = {
-        'page_obj': paginator,
+        'page_obj': page_obj,
     }
     return render(request, template, context)
 
