@@ -4,45 +4,43 @@ from django.shortcuts import get_object_or_404, redirect, render
 from .forms import CommentForm, PostForm
 from .models import Comment, Follow, Group, Post, User
 from .utils import get_paginator
-from .utils_crutch import get_paginator_crutch
 
 
 def index(request):
     posts = Post.objects.all()
-    page_obj, total_count = get_paginator(Post.objects.all(), request)
+    template = 'posts/index.html'
+    page_obj = get_paginator(posts, request)
     context = {
-        'posts': posts,
         'page_obj': page_obj,
-        'total_count': total_count,
     }
-    return render(request, 'posts/index.html', context)
+    return render(request, template, context)
 
 
 def group_posts(request, slug):
     group = get_object_or_404(Group, slug=slug)
-    page_obj, total_count = get_paginator(group.posts.all(), request)
+    template = 'posts/group_list.html'
+    page_obj = get_paginator(group.posts.all(), request)
     context = {
         'group': group,
-        'total_count': total_count,
         'page_obj': page_obj
     }
-    return render(request, 'posts/group_list.html', context)
+    return render(request, template, context)
 
 
 def profile(request, username):
     author = get_object_or_404(User, username=username)
-    page_obj, posts_amount = get_paginator(author.posts.all(), request)
+    template = 'posts/profile.html'
+    page_obj = get_paginator(author.posts.all(), request)
     following = (
         request.user.is_authenticated
         and Follow.objects.filter(
             user__username=request.user, author__username=username).exists())
     context = {
         'author': author,
-        'posts_amount': posts_amount,
         'following': following,
         'page_obj': page_obj,
     }
-    return render(request, 'posts/profile.html', context)
+    return render(request, template, context)
 
 
 def post_detail(request, post_id):
@@ -110,10 +108,10 @@ def follow_index(request):
     """Посты авторов,на которых подписан текущий пользователь, не более 10"""
     user = request.user
     posts = Post.objects.filter(author__following__user=user)
-    paginator = get_paginator_crutch(posts, request)
+    page_obj = get_paginator(posts, request)
     template = 'posts/follow.html'
     context = {
-        'page_obj': paginator,
+        'page_obj': page_obj,
     }
     return render(request, template, context)
 
