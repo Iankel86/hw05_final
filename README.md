@@ -7,7 +7,7 @@
 Блог с возможностью публикации постов, подпиской на группы и авторов, а также комментированием постов.
 
 Стек
-python version django version pillow version pytest version requests version sorl-thumbnail version
+- python - version - django - version - pillow - version - pytest - version - requests - version - sorl-thumbnail - version
 
 ### Запуск проекта в dev-режиме
 Инструкция ориентирована на операционную систему windows и утилиту git bash.
@@ -49,5 +49,5 @@ python version django version pillow version pytest version requests version sor
 - posts/follow/ - Получение информации о подписках текущего пользователя, создание новой подписки на пользователя (GET, POST).
 - CI
 
-Автор
+### Автор
 [Шадрин Ян](https://github.com/Iankel86)
