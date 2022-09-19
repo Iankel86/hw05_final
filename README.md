@@ -7,18 +7,13 @@
 Блог с возможностью публикации постов, подпиской на группы и авторов, а также комментированием постов.
 
 Стек
-[python]
-- version 
-- django 
-- version 
+![python](https://user-images.githubusercontent.com/86766017/175810761-2a172f41-70a4-47d9-9c70-e645f018a5e4.svg)
+![drf](https://user-images.githubusercontent.com/86766017/175810765-3c6dc2fd-9484-4487-beff-202db318fd56.svg)
 - pillow 
-- version 
 - pytest 
-- version 
 - requests 
-- version 
-- sorl-thumbnail 
-- version
+- thumbnail 
+
 
 ### Запуск проекта в dev-режиме
 Инструкция ориентирована на операционную систему windows и утилиту git bash.
